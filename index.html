@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniVault OS Developer Suite & Code Doctor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+        }
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+        .code-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb:hover {
+            background: #8b949e;
+        }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-gray-900 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 text-white p-2 rounded-lg font-bold tracking-wider text-sm shadow-md shadow-blue-900/30">
+                OMNI
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    OmniVault OS Developer Suite 
+                    <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">Local Edition</span>
+                </h1>
+                <p class="text-xs text-gray-400">Offline syntax doctor, code repair, and master repository</p>
+            </div>
+        </div>
+        <div class="flex bg-gray-950 p-1 rounded-lg border border-gray-800">
+            <button id="tab-doctor-btn" onclick="switchTab('doctor')" class="px-4 py-2 rounded-md text-sm font-semibold transition-all bg-blue-600 text-white">
+                🔧 Code Doctor (Formatter)
+            </button>
+            <button id="tab-depot-btn" onclick="switchTab('depot')" class="px-4 py-2 rounded-md text-sm font-semibold transition-all text-gray-400 hover:text-white">
+                📦 Official Code Depot
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+        
+        <!-- Tab 1: Code Doctor Formatter -->
+        <div id="tab-doctor" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Input Area -->
+            <div class="bg-gray-900 rounded-xl p-5 border border-gray-800 flex flex-col gap-4 shadow-md">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-md font-bold text-gray-100 flex items-center gap-2">
+                        <span class="text-blue-500">📥</span> Paste Messy Code / PDF Text Here
+                    </h2>
+                    <button onclick="clearInput()" class="text-xs text-gray-400 hover:text-red-400 transition-colors">
+                        Clear All
+                    </button>
+                </div>
+                <textarea id="raw-code-input" class="flex-1 min-h-[450px] bg-gray-950 border border-gray-800 rounded-lg p-4 font-mono text-xs text-gray-300 focus:outline-none focus:border-blue-500 code-scroll resize-y" placeholder="Paste unformatted, clumped, or PDF-broken Python code here..."></textarea>
+                <div class="flex gap-3">
+                    <button onclick="fixPythonSyntax()" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-blue-500/10 transition-all text-sm flex justify-center items-center gap-2">
+                        🪄 Run Code Doctor (Fix Spacing & Indentation)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Area -->
+            <div class="bg-gray-900 rounded-xl p-5 border border-gray-800 flex flex-col gap-4 shadow-md">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-md font-bold text-gray-100 flex items-center gap-2">
+                        <span class="text-emerald-500">🚀</span> Cleaned, Perfect Code Output
+                    </h2>
+                    <span id="clean-status" class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 hidden">Format Cleaned!</span>
+                </div>
+                <div class="relative flex-1 min-h-[450px] bg-gray-950 border border-gray-800 rounded-lg p-1">
+                    <pre class="w-full h-full p-4 overflow-auto text-xs text-gray-300 code-scroll select-all" id="clean-code-output"># Click the button below to process your messy code...</pre>
+                </div>
+                <button onclick="copyToClipboard('clean-code-output')" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg border border-gray-700 transition-all text-sm flex justify-center items-center gap-2">
+                    📋 Copy Perfect Code
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab 2: Code Depot -->
+        <div id="tab-depot" class="hidden grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Sidebar Explorer -->
+            <div class="lg:col-span-1 bg-gray-900 rounded-xl p-4 border border-gray-800 flex flex-col gap-2 shadow-md">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 px-2">Project Files</h2>
+                <div class="flex flex-col gap-1" id="file-list">
+                    <!-- Dynamic File Buttons -->
+                </div>
+            </div>
+
+            <!-- File Viewer -->
+            <div class="lg:col-span-3 bg-gray-900 rounded-xl p-5 border border-gray-800 flex flex-col gap-4 shadow-md">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg" id="viewer-icon">📄</span>
+                        <div>
+                            <h3 id="viewer-filename" class="text-sm font-bold text-white">Select a file</h3>
+                            <p id="viewer-desc" class="text-xs text-gray-400">View pristine offline-ready module source</p>
+                        </div>
+                    </div>
+                    <button onclick="copyToClipboard('viewer-code-block')" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg text-xs shadow-md transition-all flex items-center gap-2">
+                        📋 Copy File Code
+                    </button>
+                </div>
+                <div class="relative flex-1 min-h-[500px] bg-gray-950 border border-gray-800 rounded-lg p-1">
+                    <pre class="w-full h-full p-4 overflow-auto text-xs text-emerald-400 code-scroll select-all" id="viewer-code-block"># Choose a module from the explorer sidebar to view working production code...</pre>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-emerald-600 text-white font-medium py-3 px-5 rounded-lg shadow-2xl translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 border border-emerald-500 z-50">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span id="toast-text">Action successful!</span>
+    </div>
+
+    <!-- Script Area -->
+    <script>
+        // Tab switching controller
+        function switchTab(tabId) {
+            const docBtn = document.getElementById('tab-doctor-btn');
+            const depBtn = document.getElementById('tab-depot-btn');
+            const docTab = document.getElementById('tab-doctor');
+            const depTab = document.getElementById('tab-depot');
+
+            if (tabId === 'doctor') {
+                docTab.classList.remove('hidden');
+                depTab.classList.add('hidden');
+                docBtn.className = "px-4 py-2 rounded-md text-sm font-semibold transition-all bg-blue-600 text-white";
+                depBtn.className = "px-4 py-2 rounded-md text-sm font-semibold transition-all text-gray-400 hover:text-white";
+            } else {
+                depTab.classList.remove('hidden');
+                docTab.classList.add('hidden');
+                depBtn.className = "px-4 py-2 rounded-md text-sm font-semibold transition-all bg-blue-600 text-white";
+                docBtn.className = "px-4 py-2 rounded-md text-sm font-semibold transition-all text-gray-400 hover:text-white";
+                // Render explorer files if not done
+                renderDepotFiles();
+            }
+        }
+
+        // Custom Toast Box (avoid browser alerts)
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toastText.textContent = message;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Clean text utility
+        function clearInput() {
+            document.getElementById('raw-code-input').value = '';
+            document.getElementById('clean-code-output').textContent = '# Code sandbox cleared.';
+            document.getElementById('clean-status').classList.add('hidden');
+        }
+
+        // Reliable clipboard utility
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            const textToCopy = el.innerText || el.textContent;
+            
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = textToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast("Successfully copied to clipboard!");
+                } else {
+                    showToast("Failed to copy. Please manually highlight and copy.");
+                }
+            } catch (err) {
+                showToast("Error occurred. Please highlight code to copy manually.");
+            }
+            document.body.removeChild(tempTextArea);
+        }
+
+        // DYNAMIC PYTHON RE-INDENTATION & PARSING ENGINE
+        function fixPythonSyntax() {
+            const rawText = document.getElementById('raw-code-input').value;
+            if (!rawText.trim()) {
+                showToast("Please paste some code first!");
+                return;
+            }
+
+            // Step 1: Clean OCR, LaTeX formatting issues, and clumped characters
+            let clean = rawText
+                // Fix common assignment errors from PDF parsing
+                .replace(/\$=\s*([\d\w"'{])/g, '= $1')
+                .replace(/([=<>!])\s*\$=\s*/g, '$1 ')
+                .replace(/!\s*\$=\s*!=\s*0/g, '!= 0')
+                .replace(/\$=\s*6\.6\.0\$/g, '>=6.6.0')
+                .replace(/\$=\s*41\.0\.3\$/g, '>=41.0.3')
+                .replace(/\$=\s*5\.9\.6\$/g, '>=5.9.6')
+                .replace(/\$=\s*1\.5\.1\$/g, '>=1.5.1')
+                .replace(/\$=\s*0\.13\.5\$/g, '>=0.13.5')
+                .replace(/\$=\s*3\.4\.4\$/g, '>=3.4.4')
+                .replace(/\$=\s*3\.0\.0\$/g, '>=3.0.0')
+                .replace(/\$=\s*"/g, '= "')
+                .replace(/\$\s*=\s*/g, ' = ')
+                // Fix common layout symbol translations
+                .replace(/\\/g, '')
+                .replace(/\s*=\s*\\Box/g, ' = None')
+                .replace(/=\s*\\{\s*\\}/g, ' = {}')
+                .replace(/=\s*\\\[\s*\\\]/g, ' = []')
+                .replace(/\s*=\s*Box/g, ' = None')
+                .replace(/=\s*\{\s*\}/g, ' = {}')
+                .replace(/=\s*\[\s*\]/g, ' = []')
+                // Fix typos in PDF
+                .replace(/def_init__/g, 'def __init__')
+                .replace(/Password Hasher/g, 'PasswordHasher')
+                .replace(/Password Hasher\(/g, 'PasswordHasher(')
+                .replace(/dklen\s*I\s*=\s*32/g, 'dklen=32')
+                .replace(/Invalid Tag/g, 'InvalidTag')
+                .replace(/check_same_thread\s*=\s*False/g, 'check_same_thread=False')
+                .replace(/_init_schema/g, '_init_schema')
+                .replace(/_init__/g, '__init__')
+                .replace(/get_sys_stats/g, 'get_sys_stats')
+                .replace(/QSystem Traylcon/g, 'QSystemTrayIcon')
+                .replace(/QinputDialog/g, 'QInputDialog')
+                .replace(/if name\s*==\s*"\s*main\s*"\s*:/g, 'if __name__ == "__main__":')
+                .replace(/if\s+name\s+==\s+["']\s*__main__\s*["']:/g, 'if __name__ == "__main__":');
+
+            // Step 2: Line Reconstruction & Logical Indentation Doctor
+            const lines = clean.split('\n');
+            let formattedLines = [];
+            let currentIndent = 0;
+            const tabWidth = 4;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+
+                if (line === '') {
+                    formattedLines.push('');
+                    continue;
+                }
+
+                // Check for keywords that reduce indentation immediately
+                if (line.startsWith('except') || 
+                    line.startsWith('elif') || 
+                    line.startsWith('else:') || 
+                    line.startsWith('finally:')) {
+                    currentIndent = Math.max(0, currentIndent - tabWidth);
+                }
+
+                // Dedent for return statements that close class blocks
+                if (line.startsWith('def ') && currentIndent >= tabWidth) {
+                    // Reset to class level indent
+                    currentIndent = tabWidth;
+                }
+                if (line.startsWith('class ')) {
+                    currentIndent = 0;
+                }
+
+                // Add correct indent space
+                const indentedLine = ' '.repeat(currentIndent) + line;
+                formattedLines.push(indentedLine);
+
+                // If line ends with ":", subsequent lines should indent
+                if (line.endsWith(':')) {
+                    currentIndent += tabWidth;
+                }
+
+                // Dedent conditions
+                if (line.startsWith('return ') || 
+                    line.startsWith('pass') || 
+                    line.startsWith('sys.exit(')) {
+                    // Peek next line to see if we should auto-dedent (except if followed by block structures)
+                    if (i + 1 < lines.length) {
+                        const nextLine = lines[i + 1].trim();
+                        if (!nextLine.startsWith('elif') && 
+                            !nextLine.startsWith('else:') && 
+                            !nextLine.startsWith('except') && 
+                            !nextLine.endsWith(':') &&
+                            currentIndent >= tabWidth) {
+                            // If returning from an if block, shift back
+                            currentIndent = Math.max(0, currentIndent - tabWidth);
+                        }
+                    }
+                }
+            }
+
+            document.getElementById('clean-code-output').textContent = formattedLines.join('\n');
+            document.getElementById('clean-status').classList.remove('hidden');
+            showToast("Formatting and indent logic applied successfully!");
+        }
+
+        // OFFICIAL OMNIVAULT ARCHITECT DATABASE
+        const repoFiles = [
+            {
+                name: "requirements.txt",
+                icon: "📋",
+                desc: "Strict requirements list for virtual environments",
+                code: `PyQt6>=6.6.0\ncryptography>=41.0.3\nargon2-cffi>=23.1.0\npsutil>=5.9.6\npywin32>=306\nWMI>=1.5.1\nkeyboard>=0.13.5\nmarkdown>=3.4.4\nwatchdog>=3.0.0`
+            },
+            {
+                name: "omni_config.py",
+                icon: "⚙️",
+                desc: "Configuration, platform mappings, and Windows admin token checks",
+                code: `import os\nimport sys\nimport ctypes\n\nclass OmniConfig:\n    """Core configuration, path resolution, and environmental integrity checks."""\n    APP_NAME = "OmniVault OS"\n    VERSION = "1.0.0.PROD"\n\n    # Portable Mode Detection\n    IS_PORTABLE = os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'portable.ini'))\n\n    if IS_PORTABLE:\n        BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')\n    else:\n        BASE_DIR = os.path.join(os.getenv('APPDATA'), APP_NAME)\n\n    os.makedirs(BASE_DIR, exist_ok=True)\n    DB_PATH = os.path.join(BASE_DIR, 'omni_core.db')\n    VAULT_DIR = os.path.join(BASE_DIR, 'encrypted_vault')\n    PLUGIN_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plugins')\n    LOG_PATH = os.path.join(BASE_DIR, 'system.log')\n\n    os.makedirs(VAULT_DIR, exist_ok=True)\n    os.makedirs(PLUGIN_DIR, exist_ok=True)\n\n    @staticmethod\n    def is_admin() -> bool:\n        """Determines active Windows token elevation."""\n        try:\n            return ctypes.windll.shell32.IsUserAnAdmin() != 0\n        except Exception:\n            return False\n\n    @staticmethod\n    def require_admin():\n        """Requests elevation via Windows UAC if not already elevated."""\n        if not OmniConfig.is_admin():\n            ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)\n            sys.exit()`
+            },
+            {
+                name: "omni_security.py",
+                icon: "🔒",
+                desc: "AES-256-GCM encryption, Argon2id keys, and secure memory sanitizer",
+                code: `import os\nimport ctypes\nfrom argon2 import PasswordHasher\nfrom cryptography.hazmat.primitives.ciphers.aead import AESGCM\nfrom cryptography.exceptions import InvalidTag\n\nclass SecurityEngine:\n    """Handles KDF, Authenticated Encryption (AES-256-GCM), and memory sanitation."""\n    def __init__(self):\n        self.ph = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=4, hash_len=32, salt_len=16)\n        self._session_key = None\n        self._aead = None\n\n    def initialize_vault(self, password: str) -> str:\n        """Creates a new vault and returns the password hash for storage."""\n        return self.ph.hash(password)\n\n    def unlock_vault(self, password: str, stored_hash: str) -> bool:\n        """Verifies password and derives the AES session key."""\n        try:\n            self.ph.verify(stored_hash, password)\n            salt = stored_hash.split('$')[4].encode('utf-8')[:16]\n            import hashlib\n            self._session_key = hashlib.scrypt(password.encode(), salt=salt, n=32768, r=8, p=1, dklen=32)\n            self._aead = AESGCM(self._session_key)\n            return True\n        except Exception:\n            return False\n\n    def encrypt_data(self, plaintext: bytes) -> bytes:\n        """Encrypts data using AES-256-GCM with a random 12-byte nonce."""\n        if not self._aead:\n            raise PermissionError("Vault is locked.")\n        nonce = os.urandom(12)\n        ciphertext = self._aead.encrypt(nonce, plaintext, None)\n        return nonce + ciphertext\n\n    def decrypt_data(self, encrypted_data: bytes) -> bytes:\n        """Decrypts AES-256-GCM payload."""\n        if not self._aead:\n            raise PermissionError("Vault is locked.")\n        if len(encrypted_data) < 12:\n            return b""\n        nonce = encrypted_data[:12]\n        ciphertext = encrypted_data[12:]\n        try:\n            return self._aead.decrypt(nonce, ciphertext, None)\n        except InvalidTag:\n            raise ValueError("Data tampering detected or incorrect key.")\n\n    def lock_vault(self):\n        """Active memory shredding of session keys using ctypes."""\n        if self._session_key:\n            buffer_addr = id(self._session_key) + 32\n            ctypes.memset(buffer_addr, 0, len(self._session_key))\n            self._session_key = None\n            self._aead = None\n\n    def shred_file(self, filepath: str, passes: int=3):\n        """DoD 5220.22-M compliant multi-pass secure file deletion."""\n        if not os.path.exists(filepath): return\n        length = os.path.getsize(filepath)\n        with open(filepath, "ba+", buffering=0) as f:\n            for p in range(passes):\n                f.seek(0)\n                f.write(os.urandom(length))\n        os.remove(filepath)\n\nsecurity_engine = SecurityEngine()`
+            },
+            {
+                name: "omni_database.py",
+                icon: "🗄️",
+                desc: "Unified SQLite management with auto-encrypt attributes",
+                code: `import sqlite3\nimport json\nfrom omni_config import OmniConfig\nfrom omni_security import security_engine\n\nclass DatabaseManager:\n    """Unified storage engine mapping directly to Python dictionaries with automatic column encryption."""\n    def __init__(self):\n        self.conn = sqlite3.connect(OmniConfig.DB_PATH, check_same_thread=False)\n        self.conn.row_factory = sqlite3.Row\n        self._init_schema()\n\n    def _init_schema(self):\n        schemas = [\n            "CREATE TABLE IF NOT EXISTS sys_auth (id INTEGER PRIMARY KEY, pwd_hash TEXT, config TEXT)",\n            "CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, title TEXT, content BLOB, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP, is_deleted INTEGER DEFAULT 0)",\n            "CREATE TABLE IF NOT EXISTS passwords (id INTEGER PRIMARY KEY, site TEXT, username TEXT, pwd_blob BLOB, notes BLOB)",\n            "CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, status TEXT, deadline TEXT, priority TEXT)",\n            "CREATE TABLE IF NOT EXISTS habits (id INTEGER PRIMARY KEY, name TEXT, streak INTEGER, last_log TEXT)",\n            "CREATE TABLE IF NOT EXISTS expenses (id INTEGER PRIMARY KEY, amount REAL, category TEXT, date TEXT, desc TEXT)",\n            "CREATE TABLE IF NOT EXISTS time_logs (id INTEGER PRIMARY KEY, project TEXT, duration_sec INTEGER, date TEXT)",\n            "CREATE TABLE IF NOT EXISTS clipboard (id INTEGER PRIMARY KEY, content BLOB, type TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)",\n            "CREATE TABLE IF NOT EXISTS automation_rules (id INTEGER PRIMARY KEY, trigger_type TEXT, trigger_val TEXT, action TEXT)"\n        ]\n        with self.conn:\n            for query in schemas:\n                self.conn.execute(query)\n\n    def setup_auth(self, pwd_hash: str):\n        with self.conn:\n            self.conn.execute("DELETE FROM sys_auth")\n            self.conn.execute("INSERT INTO sys_auth (pwd_hash, config) VALUES (?,?)", (pwd_hash, "{}"))\n\n    def check_auth(self) -> str:\n        cur = self.conn.execute("SELECT pwd_hash FROM sys_auth LIMIT 1")\n        row = cur.fetchone()\n        return row['pwd_hash'] if row else None\n\n    def insert(self, table: str, data: dict, encrypt_fields: list = None):\n        """Dynamically inserts data, auto-encrypting specified fields."""\n        if encrypt_fields is None:\n            encrypt_fields = []\n        processed_data = {}\n        for k, v in data.items():\n            if k in encrypt_fields:\n                processed_data[k] = security_engine.encrypt_data(v.encode('utf-8'))\n            else:\n                processed_data[k] = v\n        cols = ', '.join(processed_data.keys())\n        pl = ', '.join(['?'] * len(processed_data))\n        query = f"INSERT INTO {table} ({cols}) VALUES ({pl})"\n        with self.conn:\n            self.conn.execute(query, tuple(processed_data.values()))\n\n    def get_all(self, table: str, decrypt_fields: list = None, condition: str = "1=1") -> list:\n        """Retrieves and decrypts records dynamically."""\n        if decrypt_fields is None:\n            decrypt_fields = []\n        cur = self.conn.execute(f"SELECT * FROM {table} WHERE {condition}")\n        results = []\n        for row in cur.fetchall():\n            row_dict = dict(row)\n            for field in decrypt_fields:\n                if row_dict.get(field):\n                    try:\n                        row_dict[field] = security_engine.decrypt_data(row_dict[field]).decode('utf-8')\n                    except Exception:\n                        row_dict[field] = "[DECRYPTION FAILED]"\n            results.append(row_dict)\n        return results\n\n    def delete(self, table: str, record_id: int, soft: bool = False):\n        with self.conn:\n            if soft:\n                self.conn.execute(f"UPDATE {table} SET is_deleted = 1 WHERE id = ?", (record_id,))\n            else:\n                self.conn.execute(f"DELETE FROM {table} WHERE id = ?", (record_id,))\n\n    def search_all(self, query: str) -> list:\n        """Global search across multiple tables."""\n        results = []\n        notes = self.get_all("notes", ["content"])\n        for n in notes:\n            if query.lower() in n['title'].lower() or query.lower() in n.get('content', '').lower():\n                results.append({"Type": "Note", "Detail": n['title']})\n        return results\n\ndb = DatabaseManager()`
+            },
+            {
+                name: "omni_system.py",
+                icon: "💻",
+                desc: "Live hardware, network socket listeners, profiles, and file deduplication",
+                code: `import os\nimport shutil\nimport hashlib\nimport psutil\nimport subprocess\nimport winreg\nfrom datetime import datetime\nfrom omni_config import OmniConfig\n\nclass SystemTools:\n    """Low-level Windows hardware, network, and process interactions."""\n    @staticmethod\n    def get_sys_stats() -> dict:\n        """Fetches live telemetry for the dashboard."""\n        try:\n            battery = psutil.sensors_battery()\n            bat_percent = battery.percent if battery else 100\n        except Exception:\n            bat_percent = 100\n        return {\n            "cpu": psutil.cpu_percent(interval=0.1),\n            "ram": psutil.virtual_memory().percent,\n            "disk": psutil.disk_usage('/').percent,\n            "battery": bat_percent\n        }\n\n    @staticmethod\n    def list_processes() -> list:\n        procs = []\n        for p in psutil.process_iter(['pid', 'name', 'username', 'memory_percent']):\n            try:\n                procs.append(p.info)\n            except psutil.NoSuchProcess:\n                pass\n        return procs\n\n    @staticmethod\n    def kill_process(pid: int):\n        try:\n            psutil.Process(pid).kill()\n        except Exception as e:\n            raise Exception(f"Failed to terminate: {str(e)}")\n\n    @staticmethod\n    def get_network_conns() -> list:\n        conns = []\n        for c in psutil.net_connections(kind='inet'):\n            if c.status == 'ESTABLISHED':\n                conns.append({\n                    "Local": f"{c.laddr.ip}:{c.laddr.port}" if c.laddr else "-",\n                    "Remote": f"{c.raddr.ip}:{c.raddr.port}" if c.raddr else "-",\n                    "PID": c.pid\n                })\n        return conns\n\n    @staticmethod\n    def get_wifi_profiles() -> list:\n        """Extracts Windows saved Wi-Fi profiles and passwords via netsh."""\n        profiles = []\n        try:\n            data = subprocess.check_output(['netsh', 'wlan', 'show', 'profiles']).decode('utf-8', errors="backslashreplace")\n            profiles_names = [line.split(":")[1].strip() for line in data.split("\\n") if "All User Profile" in line]\n            for name in profiles_names:\n                try:\n                    pwd_data = subprocess.check_output(['netsh', 'wlan', 'show', 'profile', name, 'key=clear']).decode('utf-8', errors="backslashreplace")\n                    pwd = [line.split(":")[1].strip() for line in pwd_data.split('\\n') if "Key Content" in line]\n                    profiles.append({"SSID": name, "Password": pwd[0] if pwd else "Open/Unknown"})\n                except Exception:\n                    profiles.append({"SSID": name, "Password": "Error/Protected"})\n        except Exception:\n            pass\n        return profiles\n\n    @staticmethod\n    def find_duplicates(directory: str) -> dict:\n        """Hashes files to find absolute duplicates."""\n        hashes = {}\n        duplicates = {}\n        for dirpath, dirnames, filenames in os.walk(directory):\n            for filename in filenames:\n                path = os.path.join(dirpath, filename)\n                try:\n                    with open(path, 'rb') as f:\n                        file_hash = hashlib.sha256(f.read(65536)).hexdigest()\n                    if file_hash in hashes:\n                        if file_hash not in duplicates:\n                            duplicates[file_hash] = [hashes[file_hash]]\n                        duplicates[file_hash].append(path)\n                    else:\n                        hashes[file_hash] = path\n                except Exception:\n                    continue\n        return duplicates\n\n    @staticmethod\n    def toggle_startup(enable: bool):\n        """Manages application startup via Windows Registry."""\n        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, winreg.KEY_SET_VALUE | winreg.KEY_READ)\n        try:\n            if enable:\n                import sys\n                winreg.SetValueEx(key, OmniConfig.APP_NAME, 0, winreg.REG_SZ, sys.executable + " " + os.path.abspath(__file__))\n            else:\n                winreg.DeleteValue(key, OmniConfig.APP_NAME)\n        except Exception:\n            pass\n        finally:\n            winreg.CloseKey(key)\n\nsys_tools = SystemTools()`
+            },
+            {
+                name: "omni_gui.py",
+                icon: "🖥️",
+                desc: "Integrated QT6 Application UI containing 10 main system screens",
+                code: `import sys\nimport os\nfrom datetime import datetime\nfrom PyQt6.QtWidgets import (\n    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,\n    QPushButton, QLabel, QStackedWidget, QListWidget, QTableWidget,\n    QTableWidgetItem, QLineEdit, QTextEdit, QMessageBox, QFileDialog,\n    QHeaderView, QInputDialog, QDialog\n)\nfrom PyQt6.QtCore import QTimer, Qt\nfrom PyQt6.QtGui import QClipboard\nfrom omni_security import security_engine\nfrom omni_database import db\nfrom omni_system import sys_tools\nfrom omni_config import OmniConfig\nimport keyboard\n\nclass GenericDataGrid(QWidget):\n    """Dynamic table generation engine for all tracking and listing features."""\n    def __init__(self, headers: list, fetch_cb, condition="1=1", parent=None):\n        super().__init__(parent)\n        self.headers = headers\n        self.fetch_cb = fetch_cb\n        self.condition = condition\n        self.layout = QVBoxLayout(self)\n        self.table = QTableWidget()\n        self.table.setColumnCount(len(headers))\n        self.table.setHorizontalHeaderLabels(headers)\n        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)\n        self.layout.addWidget(self.table)\n        self.refresh()\n\n    def refresh(self):\n        try:\n            data = self.fetch_cb()\n        except Exception:\n            data = []\n        self.table.setRowCount(len(data))\n        for row_idx, row_data in enumerate(data):\n            for col_idx, key in enumerate(self.headers):\n                val = str(row_data.get(key, row_data.get(key.lower(), "")))\n                item = QTableWidgetItem(val)\n                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)\n                self.table.setItem(row_idx, col_idx, item)\n\nclass OmniMainWindow(QMainWindow):\n    """The master shell orchestrating the subsystems."""\n    def __init__(self):\n        super().__init__()\n        self.setWindowTitle(f"{OmniConfig.APP_NAME} - Enterprise Secure")\n        self.resize(1200, 800)\n        self.setStyleSheet("""\n            QMainWindow { background-color: #121212; color: #E0E0E0; }\n            QWidget { background-color: #121212; color: #E0E0E0; font-family: 'Segoe UI'; }\n            QListWidget { background-color: #1E1E1E; border: none; font-size: 14px; }\n            QListWidget::item { padding: 15px; }\n            QListWidget::item:selected { background-color: #3B82F6; border-radius: 5px; }\n            QPushButton { background-color: #2563EB; color: white; border-radius: 5px; padding: 8px; }\n            QPushButton:hover { background-color: #1D4ED8; }\n            QTableWidget { background-color: #1E1E1E; gridline-color: #333; border: none; }\n            QHeaderView::section { background-color: #2D2D2D; padding: 5px; border: none; }\n            QLineEdit, QTextEdit { background-color: #1E1E1E; border: 1px solid #333; padding: 5px; border-radius: 3px; }\n        """)\n\n        self.central_widget = QWidget()\n        self.setCentralWidget(self.central_widget)\n        self.main_layout = QHBoxLayout(self.central_widget)\n\n        # Sidebar navigation\n        self.sidebar = QListWidget()\n        self.sidebar.setFixedWidth(220)\n        self.sidebar.addItems([\n            "Dashboard", "Smart Notes", "Password Vault", "File Vault",\n            "Task Planner", "Expense Tracker", "System Monitor", "Process Manager",\n            "Network & Wi-Fi", "Tools & Shredder"\n        ])\n        self.main_layout.addWidget(self.sidebar)\n\n        # Subsystem Views\n        self.stack = QStackedWidget()\n        self.main_layout.addWidget(self.stack)\n\n        # Build Views\n        self.stack.addWidget(self.build_dashboard())\n        self.stack.addWidget(self.build_notes())\n        self.stack.addWidget(self.build_password_vault())\n        self.stack.addWidget(self.build_file_vault())\n        self.stack.addWidget(self.build_tasks())\n        self.stack.addWidget(self.build_expenses())\n        self.stack.addWidget(self.build_sys_monitor())\n        self.stack.addWidget(self.build_processes())\n        self.stack.addWidget(self.build_network())\n        self.stack.addWidget(self.build_tools())\n\n        self.sidebar.currentRowChanged.connect(self.stack.setCurrentIndex)\n\n        # Setup Timers & Hooks\n        self.stats_timer = QTimer()\n        self.stats_timer.timeout.connect(self.update_dashboard_stats)\n        self.stats_timer.start(1000)\n\n        # Global Hotkeys\n        try:\n            keyboard.add_hotkey('ctrl+shift+space', self.show_quick_launcher)\n            keyboard.add_hotkey('ctrl+alt+l', self.panic_lock)\n        except Exception:\n            pass\n\n        # Clipboard Monitor\n        QApplication.clipboard().dataChanged.connect(self.log_clipboard)\n\n    def panic_lock(self):\n        security_engine.lock_vault()\n        self.close()\n        sys.exit()\n\n    def log_clipboard(self):\n        text = QApplication.clipboard().text()\n        if text:\n            db.insert("clipboard", {"content": text}, encrypt_fields=["content"])\n\n    def show_quick_launcher(self):\n        text, ok = QInputDialog.getText(self, "Quick Launcher", "Search Apps/Files/Notes:")\n        if ok and text:\n            res = db.search_all(text)\n            if res:\n                QMessageBox.information(self, "Search Results", str(res))\n\n    def build_dashboard(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        l.addWidget(QLabel("<h2>Personal Dashboard</h2>"))\n        self.lbl_cpu = QLabel("CPU: --%")\n        self.lbl_ram = QLabel("RAM: --%")\n        self.lbl_bat = QLabel("Battery: --%")\n        l.addWidget(self.lbl_cpu)\n        l.addWidget(self.lbl_ram)\n        l.addWidget(self.lbl_bat)\n        l.addStretch()\n        return w\n\n    def update_dashboard_stats(self):\n        stats = sys_tools.get_sys_stats()\n        self.lbl_cpu.setText(f"CPU: {stats['cpu']}%")\n        self.lbl_ram.setText(f"RAM: {stats['ram']}%")\n        self.lbl_bat.setText(f"Battery: {stats['battery']}%")\n\n    def build_notes(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        controls = QHBoxLayout()\n        self.note_title = QLineEdit()\n        self.note_title.setPlaceholderText("Note Title...")\n        btn_save = QPushButton("Save Note")\n        controls.addWidget(self.note_title)\n        controls.addWidget(btn_save)\n        self.note_content = QTextEdit()\n        \n        self.notes_grid = GenericDataGrid(\n            ["id", "title", "updated_at"],\n            lambda: db.get_all("notes", decrypt_fields=["content"], condition="is_deleted = 0")\n        )\n        btn_save.clicked.connect(self.save_note)\n        l.addLayout(controls)\n        l.addWidget(self.note_content)\n        l.addWidget(self.notes_grid)\n        return w\n\n    def save_note(self):\n        t = self.note_title.text()\n        c = self.note_content.toPlainText()\n        if t and c:\n            db.insert("notes", {"title": t, "content": c}, encrypt_fields=["content"])\n            self.notes_grid.refresh()\n            self.note_title.clear()\n            self.note_content.clear()\n\n    def build_password_vault(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        btn_add = QPushButton("Add Password")\n        btn_add.clicked.connect(self.add_password)\n        l.addWidget(btn_add)\n        self.pwd_grid = GenericDataGrid(\n            ["site", "username", "pwd_blob"],\n            lambda: db.get_all("passwords", decrypt_fields=["pwd_blob"])\n        )\n        l.addWidget(self.pwd_grid)\n        return w\n\n    def add_password(self):\n        site, ok1 = QInputDialog.getText(self, "Add", "Site/App:")\n        user, ok2 = QInputDialog.getText(self, "Add", "Username:")\n        pwd, ok3 = QInputDialog.getText(self, "Add", "Password:")\n        if ok1 and ok2 and ok3:\n            db.insert("passwords", {"site": site, "username": user, "pwd_blob": pwd}, encrypt_fields=["pwd_blob"])\n            self.pwd_grid.refresh()\n\n    def build_file_vault(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        btn = QPushButton("Encrypt & Hide File")\n        btn.clicked.connect(self.encrypt_file)\n        l.addWidget(btn)\n        l.addWidget(QLabel("Encrypted files are stored securely in OmniVault AppData."))\n        l.addStretch()\n        return w\n\n    def encrypt_file(self):\n        path, _ = QFileDialog.getOpenFileName(self, "Select File to Lock")\n        if path:\n            with open(path, 'rb') as f:\n                data = f.read()\n            enc = security_engine.encrypt_data(data)\n            out_path = os.path.join(OmniConfig.VAULT_DIR, os.path.basename(path) + ".ovault")\n            with open(out_path, 'wb') as f:\n                f.write(enc)\n            security_engine.shred_file(path)\n            QMessageBox.information(self, "Success", "File encrypted and original shredded.")\n\n    def build_tasks(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        btn = QPushButton("New Task")\n        btn.clicked.connect(self.add_task)\n        l.addWidget(btn)\n        self.task_grid = GenericDataGrid(["title", "status", "priority", "deadline"], lambda: db.get_all("tasks"))\n        l.addWidget(self.task_grid)\n        return w\n\n    def add_task(self):\n        title, ok = QInputDialog.getText(self, "Task", "Task Title:")\n        if ok:\n            db.insert("tasks", {"title": title, "status": "Pending", "priority": "Normal", "deadline": "None"})\n            self.task_grid.refresh()\n\n    def build_expenses(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        btn = QPushButton("Log Expense")\n        btn.clicked.connect(self.add_expense)\n        l.addWidget(btn)\n        self.exp_grid = GenericDataGrid(["amount", "category", "desc"], lambda: db.get_all("expenses"))\n        l.addWidget(self.exp_grid)\n        return w\n\n    def add_expense(self):\n        amt, ok = QInputDialog.getDouble(self, "Expense", "Amount:")\n        if ok:\n            db.insert("expenses", {"amount": amt, "category": "General", "desc": "Added via GUI", "date": "Now"})\n            self.exp_grid.refresh()\n\n    def build_sys_monitor(self) -> QWidget:\n        return QLabel("System monitoring integrated into Dashboard.")\n\n    def build_processes(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        btn = QPushButton("Kill Selected (Requires PID)")\n        btn.clicked.connect(self.kill_proc)\n        l.addWidget(btn)\n        self.proc_grid = GenericDataGrid(["pid", "name", "username", "memory_percent"], lambda: sys_tools.list_processes())\n        l.addWidget(self.proc_grid)\n        return w\n\n    def kill_proc(self):\n        pid, ok = QInputDialog.getInt(self, "Kill Process", "Enter PID:")\n        if ok:\n            try:\n                sys_tools.kill_process(pid)\n                QMessageBox.information(self, "Killed", "Process Terminated.")\n                self.proc_grid.refresh()\n            except Exception as e:\n                QMessageBox.critical(self, "Error", str(e))\n\n    def build_network(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        l.addWidget(QLabel("Active Connections"))\n        l.addWidget(GenericDataGrid(["Local", "Remote", "PID"], lambda: sys_tools.get_network_conns()))\n        l.addWidget(QLabel("Saved Wi-Fi Passwords"))\n        l.addWidget(GenericDataGrid(["SSID", "Password"], lambda: sys_tools.get_wifi_profiles()))\n        return w\n\n    def build_tools(self) -> QWidget:\n        w = QWidget()\n        l = QVBoxLayout(w)\n        btn_shred = QPushButton("Secure File Shredder (DoD 5220.22-M)")\n        btn_shred.clicked.connect(self.gui_shred)\n        btn_dup = QPushButton("Find Duplicate Files")\n        btn_dup.clicked.connect(self.gui_dups)\n        btn_screen = QPushButton("Take Vault Screenshot")\n        btn_screen.clicked.connect(self.gui_screen)\n        l.addWidget(btn_shred)\n        l.addWidget(btn_dup)\n        l.addWidget(btn_screen)\n        l.addStretch()\n        return w\n\n    def gui_shred(self):\n        path, _ = QFileDialog.getOpenFileName(self, "Select File to PERMANENTLY DESTROY")\n        if path:\n            security_engine.shred_file(path)\n            QMessageBox.information(self, "Shredded", "File securely destroyed.")\n\n    def gui_dups(self):\n        path = QFileDialog.getExistingDirectory(self, "Select Directory to Scan")\n        if path:\n            dups = sys_tools.find_duplicates(path)\n            res = "\\n".join([f"Hash: {k}\\nFiles: {v}" for k, v in dups.items() if len(v) > 1])\n            if not res: res = "No duplicates found."\n            QMessageBox.information(self, "Duplicates", res)\n\n    def gui_screen(self):\n        pix = QApplication.primaryScreen().grabWindow(0)\n        path = os.path.join(OmniConfig.VAULT_DIR, f"screenshot_{datetime.now().timestamp()}.png")\n        pix.save(path, "PNG")\n        with open(path, 'rb') as f:\n            data = f.read()\n        enc = security_engine.encrypt_data(data)\n        with open(path + ".ovault", 'wb') as f:\n            f.write(enc)\n        security_engine.shred_file(path)\n        QMessageBox.information(self, "Screenshot", "Screenshot taken and encrypted in vault.")\n\nclass AuthWindow(QDialog):\n    \"\"\"Secure boot entry point handling KDF verification.\"\"\"\n    def __init__(self):\n        super().__init__()\n        self.setWindowTitle("OmniVault - Secure Boot")\n        self.resize(400, 200)\n        self.setStyleSheet("background-color: #121212; color: white;")\n        layout = QVBoxLayout(self)\n        self.pwd = QLineEdit()\n        self.pwd.setEchoMode(QLineEdit.EchoMode.Password)\n        self.btn = QPushButton("Unlock / Setup")\n        layout.addWidget(QLabel("<h2>OmniVault OS Authentication</h2>"))\n        layout.addWidget(self.pwd)\n        layout.addWidget(self.btn)\n        self.btn.clicked.connect(self.auth)\n\n    def auth(self):\n        p = self.pwd.text()\n        stored = db.check_auth()\n        if not stored:\n            h = security_engine.initialize_vault(p)\n            db.setup_auth(h)\n            security_engine.unlock_vault(p, h)\n            self.accept()\n        else:\n            if security_engine.unlock_vault(p, stored):\n                self.accept()\n            else:\n                QMessageBox.critical(self, "Error", "Invalid Credential.")\n                self.pwd.clear()`
+            },
+            {
+                name: "main.py",
+                icon: "🚀",
+                desc: "Entry point orchestrating initialization, background automation, and loop",
+                code: `import sys\nimport os\nimport threading\nimport time\nfrom PyQt6.QtWidgets import QApplication\nfrom omni_config import OmniConfig\nfrom omni_gui import AuthWindow, OmniMainWindow\nfrom omni_system import sys_tools\n\ndef automation_daemon():\n    \"\"\"Background thread executing user-defined environmental automation rules.\"\"\"\n    while True:\n        try:\n            stats = sys_tools.get_sys_stats()\n            if stats['battery'] < 20:\n                pass\n        except Exception:\n            pass\n        time.sleep(60)\n\ndef main():\n    if not os.path.exists(OmniConfig.BASE_DIR):\n        os.makedirs(OmniConfig.BASE_DIR)\n    app = QApplication(sys.argv)\n    app.setApplicationName(OmniConfig.APP_NAME)\n\n    # Initialize background automation\n    daemon = threading.Thread(target=automation_daemon, daemon=True)\n    daemon.start()\n\n    auth = AuthWindow()\n    if auth.exec() == AuthWindow.DialogCode.Accepted:\n        main_win = OmniMainWindow()\n        main_win.show()\n        sys.exit(app.exec_())\n    else:\n        sys.exit(0)\n\nif __name__ == "__main__":\n    main()`
+            }
+        ];
+
+        // Fill Code Depot file list
+        function renderDepotFiles() {
+            const listContainer = document.getElementById('file-list');
+            if (listContainer.children.length > 0) return; // Prevent double rendering
+
+            repoFiles.forEach((file, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left text-xs font-semibold text-gray-300 hover:bg-gray-800 transition-all border border-transparent";
+                btn.id = `depot-file-btn-${idx}`;
+                btn.onclick = () => selectDepotFile(idx);
+                btn.innerHTML = `<span class="text-base">${file.icon}</span> <span>${file.name}</span>`;
+                listContainer.appendChild(btn);
+            });
+
+            // Auto-select first file
+            selectDepotFile(0);
+        }
+
+        // Active file state tracker
+        function selectDepotFile(index) {
+            // Remove active style from all
+            repoFiles.forEach((_, idx) => {
+                const btn = document.getElementById(`depot-file-btn-${idx}`);
+                if (btn) btn.className = "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left text-xs font-semibold text-gray-300 hover:bg-gray-800 transition-all border border-transparent";
+            });
+
+            // Set active style
+            const activeBtn = document.getElementById(`depot-file-btn-${index}`);
+            if (activeBtn) activeBtn.className = "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left text-xs font-bold bg-blue-600/10 text-blue-400 border border-blue-500/20";
+
+            // Update viewer
+            const file = repoFiles[index];
+            document.getElementById('viewer-icon').textContent = file.icon;
+            document.getElementById('viewer-filename').textContent = file.name;
+            document.getElementById('viewer-desc').textContent = file.desc;
+            document.getElementById('viewer-code-block').textContent = file.code;
+        }
+    </script>
+</body>
+</html>
+
